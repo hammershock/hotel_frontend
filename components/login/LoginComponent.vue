@@ -34,27 +34,57 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data(){
-    return {username: '', currentRole: '客户'}
+    return {username: '', password: '', currentRole: '客户'}
   },
   methods:
 {
   switchRole(role){this.currentRole=role;},
-  login(){
-    // 请求登录token
-    this.$emit('login-success', this.currentRole, this.username);
+  async login() {
+      try {
+        const loginApi = window.apiBaseUrl + '/login'; // 使用全局变量
+        const response = await axios.post(loginApi, {
+          username: this.username,
+          password: this.password,
+          role: this.currentRole
+        });
+        const token = response.data.token;
+        localStorage.setItem('token', token); // 保存 token
+        // localStorage.getItem('token')
+        // 触发登录成功的事件
+        alert(token)
+        this.$emit('login-success', { role: this.currentRole, account: this.username });
+      }  catch (error) {
+    if (error.response) {
+      // 请求已发送，服务器以状态码响应
+      if (error.response.status === 401) {
+        alert("用户名或密码不正确");
+      } else {
+        // 其他服务器端错误
+        alert("服务器错误：" + error.response.status);
+      }
+    } else if (error.request) {
+      // 请求已发送，但没有收到响应
+      alert("服务器无响应，请检查网络连接");
+    } else {
+      // 在设置请求时发生了一些问题
+      alert("登录请求失败：" + error.message);
+    }
+    console.error('Login error:', error);
   }
+    }
 }
 }
-
 
 </script>
 <style scoped>
 
 .canvas {
   /* 容器样式 */
-  background-image: url('public/login-background.jpg'); /* 设置背景图片路径 */
+  background-image: url('../../public/login-background.jpg'); /* 设置背景图片路径 */
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;

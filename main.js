@@ -1,12 +1,17 @@
 import { createApp } from 'vue';
 import App from './App.vue';
-import AirConditionerControlPanel from './components/AirConditionerControlPanel.vue';
+import axios from "axios";
 
 const app = createApp(App);
 
-// 全局注册空调控制面板组件
-app.component('AirConditionerControlPanel', AirConditionerControlPanel);
-
-app.provide('apiBaseUrl', 'http://localhost:5000');
+window.apiBaseUrl = 'http://localhost:5000';
 
 app.mount('#app');
+
+axios.interceptors.request.use(function (config) {
+  const token = localStorage.getItem('token');
+  config.headers.Authorization = token ? `Bearer ${token}` : '';
+  return config;
+});
+
+
