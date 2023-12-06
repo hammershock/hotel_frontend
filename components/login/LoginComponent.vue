@@ -55,7 +55,6 @@ export default {
         localStorage.setItem('token', token); // 保存 token
         // localStorage.getItem('token')
         // 触发登录成功的事件
-        alert(token)
         this.$emit('login-success', { role: this.currentRole, account: this.username });
       }  catch (error) {
     if (error.response) {

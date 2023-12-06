@@ -84,6 +84,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
@@ -108,7 +110,7 @@ export default {
       selectedRoom: null,
       step: 1,
       account: {
-        password: ''
+        password: '',
       }
     };
   },
@@ -121,13 +123,28 @@ export default {
       this.selectedRoom = room;
       this.step = 4;
     },
-    registerAccount() {
-      // alert(`账号: ${this.selectedRoom}，密码: ${this.account.password}`);
-      // 在这里处理账号注册逻辑
-      alert('注册成功！');
-      this.$emit('goBackToMenu');
-    },
+    async registerAccount() {
+      try {
+        const token = localStorage.getItem('token');
+        const payload = {
+          account: {username: this.selectedRoom, password: this.account.password},
+          customer: this.customer
+        };
 
+        const response = await axios.post(window.apiBaseUrl + '/register', payload
+        ,{
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        alert('注册成功！');
+        this.$emit('goBackToMenu');
+      } catch (error) {
+        console.error('Error during account registration:', error);
+        alert('注册失败！');
+        // 可以添加错误处理逻辑
+      }
+    }
   }
 };
 </script>

@@ -66,9 +66,9 @@ export default {
       temperatureMax: 30,
       fanSpeed: 'medium',
       mode: 'cool', // 制冷模式
-      consumption: 0.2, // 累计消费
+      consumption: null, // 累计消费
       roomTemperature: 22,
-      rate: 0.1  // 空调费率
+      rate: null  // 空调费率
     };
   },
 
@@ -97,7 +97,6 @@ export default {
           }
         });
         // 更新组件的数据属性
-        this.temperature = response.data.temperature; // 举例
         this.isOn = response.data.isOn;
         this.temperatureMin = response.data.temperatureMin;
         this.temperature = response.data.temperature;

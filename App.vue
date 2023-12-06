@@ -8,7 +8,7 @@
     />
 
     <!-- 如果已登录且当前角色是空调管理员，显示管理员界面 -->
-    <ACManager
+    <ACManagerMenu
       v-else-if="isLoggedIn && currentRole === '管理员'"
       @logout="handleLogoutSuccess"
     />
@@ -28,7 +28,8 @@
 import LoginComponent from './components/login/LoginComponent.vue';
 import AirConditionerControlPanel from './components/customer/AirConditionerControlPanel.vue';
 import ReceptionComponent from './components/front-desk/ReceptionComponent.vue';
-import ACManager from './components/ACManager.vue'; // 导入空调管理员界面组件
+import ACManagerMenu from './components/AC-manager/ACManagerMenu.vue';
+import axios from "axios"; // 导入空调管理员界面组件
 
 export default {
   name: 'App',
@@ -36,7 +37,7 @@ export default {
     LoginComponent,
     AirConditionerControlPanel,
     ReceptionComponent,
-    ACManager // 注册空调管理员界面组件
+    ACManagerMenu // 注册空调管理员界面组件
   },
   data() {
     return {
@@ -53,10 +54,29 @@ export default {
       alert(`login success, ${role}, ${account}`)
 
     },
-    handleLogoutSuccess() {
-      this.isLoggedIn = false;
-      this.currentRole = '';
-      this.currentAccount = null;
+    async handleLogoutEvent() {
+    const token = localStorage.getItem('token'); // 从 localStorage 获取 token
+
+    try {
+      await axios.post(window.apiBaseUrl + '/logout', {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      // 当成功登出时：
+      this.handleLogoutSuccess();
+    } catch (error) {
+      console.error('Logout error:', error);
+      alert(error);
+      // 可以添加错误处理逻辑
+    }
+  },
+
+  handleLogoutSuccess() {
+    this.isLoggedIn = false;
+    this.currentRole = '';
+    this.currentAccount = null;
+    localStorage.removeItem('token'); // 清除 token
     }
   }
 };

@@ -1,6 +1,6 @@
 <template>
   <div class="hotel-reception">
-    <h2 class="hotel-title">波普特酒店前台系统</h2>
+    <h2 class="hotel-title">波普特酒店管理员系统</h2>
     <!-- 返回按钮 -->
     <button v-if="this.inPage === false" @click="logout" class="back-button left">
     <img src="/logout.png" alt="Logout" width="16" height="16"> 退出登录
@@ -8,7 +8,6 @@
     <button v-if="this.inPage === true" @click="goToMainMenu" class="back-button right">
       <img src="/home.png" alt="Home" width="16" height="16"> 返回主菜单
     </button>
-
 
     <!-- 主菜单 -->
     <div class="main-menu">
@@ -24,7 +23,6 @@
     </div>
 
     <!-- 登记入住流程 -->
-    <CheckInForm v-if="this.selected === 1" @goBackToMenu="goToMainMenu"/>
 
   </div>
 
@@ -32,17 +30,17 @@
 </template>
 
 <script>
-import CheckInForm from "./CheckInForm.vue";
 
 export default {
-  components: {CheckInForm},
+  components: {},
   data() {
     return {
       selected: 0,
       inPage: false,
       mainMenuItems: [
-        {text: '入住登记', id: 1},
-        {text: '退房手续', id: 2},
+        {text: '帐号管理', id: 1},
+        {text: '空调监控', id: 2},
+        {text: '费率设置', id: 3},
       ],
     };
   },
