@@ -1,21 +1,48 @@
 <template>
-  <div class="account-management">
-<!--    <h1>帐号管理</h1>-->
-    <div class="account-list">
-      <ul>
-        <li v-for="room in rooms" :key="room.id" :class="getRoomTypeClass(room)">
-          <strong>{{ room.id }}</strong> ({{ room.type }})
-          <br>
-          入住天数: {{ room.days }}
-          <br>
-          消费金额: {{ room.consumption }}
-
-          <button @click="deleteRoom(room.id); ">删除</button>
-        </li>
-      </ul>
+  <div class="room-management">
+    <div class="controls">
+      <input type="text" v-model="searchQuery" placeholder="搜索房间..." class="search-bar">
+      <select v-model="selectedType" class="room-filter">
+        <option value="">所有类型</option>
+        <option value="大床房">大床房</option>
+        <option value="标准间">标准间</option>
+      </select>
     </div>
+    <div class="room-list">
+      <transition-group name="room-fade" tag="div" class="room-list">
+      <div v-for="room in filteredRooms" :key="room.id" :class="['room-card', getRoomTypeClass(room)]">
+        <h2>房间号: {{ room.id }}</h2>
+        <p>类型: {{ room.type }}</p>
+        <p>入住天数: {{ room.days }}</p>
+        <p>消费金额: {{ room.consumption }} 元</p>
+        <button @click="deleteRoom(room.id)" class="delete-btn">删除</button>
+      </div></transition-group>
+    </div>
+    <div class="room-creation">
+    <h2>创建新房间</h2>
+    <form @submit.prevent="createRoom">
+      <div class="form-group">
+        <label for="roomNumber">房间号:</label>
+        <input type="number" id="roomNumber" v-model.number="newRoom.roomNumber" min="1" required>
+      </div>
+      <div class="form-group">
+        <label for="roomType">房间类型:</label>
+        <select id="roomType" v-model="newRoom.roomType" required>
+          <option value="">选择类型</option>
+          <option value="大床房">大床房</option>
+          <option value="标准间">标准间</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="roomDuration">入住天数:</label>
+        <input type="number" id="roomDuration" v-model.number="newRoom.roomDuration" min="1" required>
+      </div>
+      <button type="submit" class="submit-btn">添加房间</button>
+    </form>
+  </div>
   </div>
 </template>
+
 
 
 <script>
@@ -24,11 +51,29 @@ import axios from "axios";
 export default {
   data() {
     return {
-      rooms: []
+      rooms: [],
+      searchQuery: '',
+      selectedType: '',
+      newRoom: {
+        roomNumber: null,
+        roomType: '',
+        roomDuration: null
+      }
     };
   },
+
+  computed: {
+    filteredRooms() {
+      return this.rooms.filter(room => {
+        return (
+          (this.selectedType === '' || room.type === this.selectedType) &&
+          room.id.toString().includes(this.searchQuery)
+        );
+      });
+    }
+  },
   mounted() {
-    this.fetchRooms(); // 首次加载时立即更新状态
+    this.fetchRooms();
   },
   methods: {
     getRoomTypeClass(account) {
@@ -41,6 +86,7 @@ export default {
           return "";
       }
     },
+
     async fetchRooms() {
       try {
         const response = await axios.get(`${window.apiBaseUrl}/view-rooms`);
@@ -68,59 +114,134 @@ export default {
             }
         );
         await this.fetchRooms();
-        alert('删除成功！');
+        // alert('删除成功！');
         // 在此处执行更新帐号列表的操作，例如重新加载帐号数据
       } catch (error) {
         console.error('Error during account logout:', error);
         alert(error);
       }
     },
+
+    async createRoom() {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.post(`${window.apiBaseUrl}/create-room`, this.newRoom, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        // 处理房间创建成功后的逻辑
+        // 如清空表单
+        this.newRoom = { roomNumber: null, roomType: '', roomDuration: null };
+        // 更新房间列表
+        await this.fetchRooms();
+        // alert('房间创建成功！');
+      } catch (error) {
+        console.error('Error creating room:', error);
+        alert('房间创建失败：' + error);
+      }
+    },
+
   }
 };
 </script>
 
-
-<style scoped>
-.account-management {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  background-color: #f5f5f5;
+<style>
+.room-management {
   padding: 20px;
-  max-height: 400px; /* 设置最大高度 */
-  overflow-y: auto; /* 添加垂直滚动条 */
 }
 
-.account-list ul {
-  list-style: none;
-  padding: 0;
+.controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
-.account-list li {
-  display: flex; /* 使用 flex 布局 */
-  justify-content: space-between; /* 水平布局，内容分布在两端 */
-  align-items: center; /* 垂直居中对齐 */
-  margin: 10px 0;
+.search-bar, .room-filter {
   padding: 10px;
   border: 1px solid #ccc;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.room-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.room-card {
+  width: 250px;
+  padding: 15px;
+  margin: 10px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.room-card:hover {
+  transform: scale(1.05);
 }
 
 .big {
-  color: #4CAF50;
+  background-color: #e6f7ff;
 }
 
 .normal {
-  color: #2196F3;
+  background-color: #fffbe6;
 }
 
-
-.account-info {
-  flex: 1; /* 占据可用空间的比例，这里占据左边的空间 */
+.delete-btn {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.account-details {
-  flex: 1; /* 占据可用空间的比例，这里占据右边的空间 */
-  text-align: right; /* 右对齐文本 */
+.delete-btn:hover {
+  background-color: #ff7875;
+}
+
+.room-fade-enter-active, .room-fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+.room-fade-enter, .room-fade-leave-to /* 2.1.8版及更高版本 */ {
+  opacity: 0;
+}
+
+.room-creation {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+.form-group {
+  margin-bottom: 10px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.submit-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background-color: #45a049;
 }
 </style>

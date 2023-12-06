@@ -1,18 +1,61 @@
 <template>
   <div class="account-management">
-<!--    <h1>帐号管理</h1>-->
+    <div class="controls">
+      <input type="text" v-model="searchQuery" placeholder="搜索账号..." class="search-bar">
+      <select v-model="selectedRole" class="role-filter">
+        <option value="">所有角色</option>
+        <option value="客户">客户</option>
+        <option value="管理员">管理员</option>
+        <option value="前台">前台</option>
+      </select>
+    </div>
     <div class="account-list">
-      <ul>
-        <li v-for="account in accounts" :key="account.id" :class="getAccountClass(account)">
+      <transition-group name="account-fade" tag="div" class="account-list">
+       <div v-for="account in filteredAccounts" :key="account.id" :class="['account-card', getAccountClass(account)]">
+        <div class="account-header">
           <strong>{{ account.username }}</strong> ({{ account.role }})
-          <br>
-          身份证号: {{ account.idCard }}
-          <br>
-          手机号: {{ account.phoneNumber }}
+        </div>
+        <div class="account-info">
+          <p>身份证号: {{ account.idCard || 'N/A' }}</p>
+          <p>手机号: {{ account.phoneNumber || 'N/A' }}</p>
+        </div>
+        <button @click="deleteAccount(account.username, account.role)" class="logout-btn">注销</button>
+      </div>
+      </transition-group>
+    </div>
 
-          <button @click="logoutAccount(account.username, account.role); ">注销</button>
-        </li>
-      </ul>
+    <!-- 分页控件或其他功能 -->
+    <div class="add-account-form">
+      <h2>添加新账号</h2>
+      <form @submit.prevent="createAccount">
+        <div class="form-group">
+          <label for="username">用户名:</label>
+          <input type="text" id="username" v-model="newAccount.username" required>
+        </div>
+        <div class="form-group">
+          <label for="password">密码:</label>
+          <input type="password" id="password" v-model="newAccount.password" required>
+        </div>
+        <div class="form-group">
+          <label for="role">角色:</label>
+          <select id="role" v-model="newAccount.role" required>
+            <option value="">选择角色</option>
+            <option value="客户">客户</option>
+            <option value="管理员">管理员</option>
+            <option value="前台">前台</option>
+          </select>
+        </div>
+        <!-- 身份证号和手机号输入 -->
+        <div class="form-group">
+          <label for="idCard">身份证号:</label>
+          <input type="text" id="idCard" v-model="newAccount.idCard">
+        </div>
+        <div class="form-group">
+          <label for="phoneNumber">手机号:</label>
+          <input type="text" id="phoneNumber" v-model="newAccount.phoneNumber">
+        </div>
+        <button type="submit" class="submit-btn">添加账号</button>
+      </form>
     </div>
   </div>
 </template>
@@ -24,11 +67,31 @@ import axios from "axios";
 export default {
   data() {
     return {
-      accounts: []
+      accounts: [],
+      searchQuery: '',
+      selectedRole: '',
+      newAccount: {
+        username: '',
+        password: '',
+        role: '',
+        idCard: '',
+        phoneNumber: ''
+      }
     };
   },
   mounted() {
     this.fetchAccounts(); // 首次加载时立即更新状态
+  },
+
+  computed: {
+    filteredAccounts() {
+      return this.accounts.filter(account => {
+        return (
+          (this.selectedRole === '' || account.role === this.selectedRole) &&
+          account.username.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
+      });
+    }
   },
   methods: {
     getAccountClass(account) {
@@ -43,16 +106,31 @@ export default {
           return "";
       }
     },
-    async fetchAccounts() {
+    async createAccount() {
       try {
-        const response = await axios.get(`${window.apiBaseUrl}/view-accounts`);
-        this.accounts = response.data; // 将响应数据赋值给 accounts
+        // 发送请求到后端创建账号
+        const token = localStorage.getItem('token');
+        const response = await axios.post(
+            `${window.apiBaseUrl}/create-account`,
+            this.newAccount,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+        );
+
+        // 清空表单
+        this.newAccount = { username: '', password: '', role: '', idCard: '', phoneNumber: '' };
+        // 可能需要重新加载账号列表
+        await this.fetchAccounts();
+
       } catch (error) {
-        console.error('Error fetching accounts:', error);
-        alert(error);
+        console.error('Error creating account:', error);
       }
     },
-    async logoutAccount(username, role) {
+
+    async deleteAccount(username, role) {
       try {
         const token = localStorage.getItem('token');
         const payload = {
@@ -69,11 +147,23 @@ export default {
               },
             }
         );
-        await this.fetchAccounts();
-        alert('删除成功！');
         // 在此处执行更新帐号列表的操作，例如重新加载帐号数据
+        await this.fetchAccounts();
+        // alert('删除成功！');
+
       } catch (error) {
         console.error('Error during account logout:', error);
+        alert(error);
+      }
+
+    },
+
+    async fetchAccounts() {
+      try {
+        const response = await axios.get(`${window.apiBaseUrl}/view-accounts`);
+        this.accounts = response.data; // 将响应数据赋值给 accounts
+      } catch (error) {
+        console.error('Error fetching accounts:', error);
         alert(error);
       }
     },
@@ -83,6 +173,22 @@ export default {
 
 
 <style scoped>
+.controls {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.search-bar {
+  padding: 10px;
+  width: 300px;
+}
+
+.role-filter {
+  padding: 10px;
+  width: 200px;
+}
+
 .account-management {
   font-family: Arial, sans-serif;
   text-align: center;
@@ -90,6 +196,60 @@ export default {
   padding: 20px;
   max-height: 400px; /* 设置最大高度 */
   overflow-y: auto; /* 添加垂直滚动条 */
+}
+
+.account-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.account-card {
+  width: 300px;
+  margin: 10px;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.account-card:hover {
+  transform: scale(1.05);
+}
+
+.account-header {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.account-info p {
+  margin: 5px 0;
+}
+
+.logout-btn {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #ff7875;
+}
+
+.customer {
+  background-color: #e6f7ff;
+}
+
+.admin {
+  background-color: #fffbe6;
+}
+
+.front-desk {
+  background-color: #f6ffed;
 }
 
 .account-list ul {
@@ -108,24 +268,47 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.customer {
-  color: #4CAF50;
+.add-account-form {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
 }
 
-.admin {
-  color: #2196F3;
+.form-group {
+  margin-bottom: 10px;
 }
 
-.front-desk {
-  color: #FF5722;
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
 }
 
-.account-info {
-  flex: 1; /* 占据可用空间的比例，这里占据左边的空间 */
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-.account-details {
-  flex: 1; /* 占据可用空间的比例，这里占据右边的空间 */
-  text-align: right; /* 右对齐文本 */
+.submit-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background-color: #45a049;
+}
+
+.account-fade-enter-active, .account-fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+.account-fade-enter, .account-fade-leave-to /* 2.1.8版及更高版本 */ {
+  opacity: 0;
 }
 </style>
+
