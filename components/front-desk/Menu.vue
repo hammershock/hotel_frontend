@@ -1,6 +1,6 @@
 <template>
   <div class="hotel-reception">
-    <h2 class="hotel-title">波普特酒店管理员系统</h2>
+    <h2 class="hotel-title">波普特酒店前台系统</h2>
     <!-- 返回按钮 -->
     <button v-if="this.inPage === false" @click="logout" class="back-button left">
     <img src="/logout.png" alt="Logout" width="16" height="16"> 退出登录
@@ -22,14 +22,19 @@
       </button>
     </div>
 
-    <!-- 登记入住流程 -->
+    <!-- 管理帐号 -->
+<!--    <Accounts v-if="this.selected === 1" @goBackToMenu="goToMainMenu" @logout="logout"/>-->
 
+    <!-- 管理房间 -->
+<!--    <Rooms v-if="this.selected === 2" @goBackToMenu="goToMainMenu" @logout="logout"/>-->
   </div>
 
 
 </template>
 
 <script>
+
+
 
 export default {
   components: {},
@@ -38,9 +43,8 @@ export default {
       selected: 0,
       inPage: false,
       mainMenuItems: [
-        {text: '帐号管理', id: 1},
-        {text: '空调监控', id: 2},
-        {text: '费率设置', id: 3},
+        {text: '登记入住', id: 1},
+        {text: '退房手续', id: 2},
       ],
     };
   },

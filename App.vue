@@ -14,7 +14,7 @@
     />
 
     <!-- 如果已登录且当前角色是前台，显示前台界面 -->
-    <ReceptionComponent
+    <FrontDeskMenu
       v-else-if="isLoggedIn && currentRole === '前台'"
       @logout="handleLogoutSuccess"
     />
@@ -27,8 +27,8 @@
 <script>
 import LoginComponent from './components/login/LoginComponent.vue';
 import AirConditionerControlPanel from './components/customer/AirConditionerControlPanel.vue';
-import ReceptionComponent from './components/front-desk/ReceptionComponent.vue';
-import ACManagerMenu from './components/AC-manager/ACManagerMenu.vue';
+import FrontDeskMenu from './components/front-desk/Menu.vue';
+import ACManagerMenu from './components/manager/Menu.vue';
 import axios from "axios"; // 导入空调管理员界面组件
 
 export default {
@@ -36,7 +36,7 @@ export default {
   components: {
     LoginComponent,
     AirConditionerControlPanel,
-    ReceptionComponent,
+    FrontDeskMenu,
     ACManagerMenu // 注册空调管理员界面组件
   },
   data() {
