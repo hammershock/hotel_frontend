@@ -17,8 +17,8 @@
 
       <!-- 温度控制 -->
       <div class="temperature-control">
-        <label for="temperature">温度: {{ temperature }}°C</label>
-        <input type="range" id="temperature" v-model="temperature" :min="temperatureMin" :max="temperatureMax" @change="onStatusChange">
+        <label for="temperature">温度: {{ acTemperature }}°C</label>
+        <input type="range" id="temperature" v-model="acTemperature" :min="temperatureMin" :max="temperatureMax" @change="onStatusChange">
       </div>
 
       <!-- 风速控制 -->
@@ -62,7 +62,7 @@ export default {
     return {
       isOn: false,
       temperatureMin: 16,
-      temperature: 22,
+      acTemperature: 22,
       temperatureMax: 30,
       fanSpeed: 'medium',
       mode: 'cool', // 制冷模式
@@ -99,7 +99,7 @@ export default {
         // 更新组件的数据属性
         this.isOn = response.data.isOn;
         this.temperatureMin = response.data.temperatureMin;
-        this.temperature = response.data.temperature;
+        this.acTemperature = response.data.acTemperature;
         this.temperatureMax = response.data.temperatureMax;
         this.fanSpeed = response.data.fanSpeed;
         this.mode = response.data.mode;
@@ -120,7 +120,7 @@ export default {
         const updateStatusApi = window.apiBaseUrl + '/update-status/' + this.roomID;
         const payload = {
           isOn: this.isOn,
-          temperature: this.temperature,
+          temperature: this.acTemperature,
           fanSpeed: this.fanSpeed,
           mode: this.mode, // 制冷模式
           roomTemperature: this.roomTemperature,

@@ -29,7 +29,7 @@
     <Rooms v-if="this.selected === 2" @goBackToMenu="goToMainMenu" @logout="logout"/>
 
     <!-- 管理房间 -->
-    <Monitor v-if="this.selected === 3" @goBackToMenu="goToMainMenu" @logout="logout"/>
+    <Control v-if="this.selected === 3" @goBackToMenu="goToMainMenu" @logout="logout"/>
 
   </div>
 
@@ -40,11 +40,11 @@
 
 import Accounts from "./AccountsManager.vue";
 import Rooms from "./RoomManager.vue"
-import Monitor from "./RoomMonitor.vue"
+import Control from "./ACControl.vue"
 
 
 export default {
-  components: {Accounts, Rooms, Monitor},
+  components: {Accounts, Rooms, Control},
   data() {
     return {
       selected: 0,
@@ -52,8 +52,7 @@ export default {
       mainMenuItems: [
         {text: '帐号管理', id: 1},
         {text: '房间管理', id: 2},
-        {text: '空调监控', id: 3},
-        {text: '费率设置', id: 4},
+        {text: '费率设置', id: 3},
       ],
     };
   },

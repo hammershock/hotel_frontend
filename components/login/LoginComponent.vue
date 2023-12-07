@@ -51,6 +51,7 @@ export default {
           password: this.password,
           role: this.currentRole
         });
+        console.log(response)
         const token = response.data.token;
         localStorage.setItem('token', token); // 保存 token
         // localStorage.getItem('token')

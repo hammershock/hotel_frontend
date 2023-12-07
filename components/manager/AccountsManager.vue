@@ -194,7 +194,7 @@ export default {
   text-align: center;
   background-color: #f5f5f5;
   padding: 20px;
-  max-height: 400px; /* 设置最大高度 */
+  max-height: 800px; /* 设置最大高度 */
   overflow-y: auto; /* 添加垂直滚动条 */
 }
 
