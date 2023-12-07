@@ -1,10 +1,6 @@
 <template>
-  <div class="title">
-    <button @click="logout" class="back-button left">退出登录</button>
-  </div>
-  <h2 class="hotel-title">欢迎回来，{{ this.username }}!</h2>
-  <div class="air-conditioner-control-panel">
-
+<div class="air-conditioner-control-panel">
+    <h2 class="hotel-title">波普特酒店{{ this.roomNumber }}房间</h2>
     <button @click="togglePower();onStatusChange()" :class="{ 'active': isOn }">{{
         isOn ? '关闭空调' : '打开空调'
       }}
@@ -42,7 +38,6 @@
     <!-- 累计消费和详情链接 -->
     <div class="consumption-info">
       <span>累计消费: {{ consumption }}元</span>
-      <button @click="getRoomDetails"> </button>
       <a href="/consumption-details" target="_blank">查看消费详情</a>
     </div>
   </div>
@@ -53,15 +48,15 @@
 import axios from "axios";
 
 export default {
-  created() {
-    this.username = this.$route.params.roomID;
-  },
   mounted() {
     this.updateRoomStatus(); // 首次加载时立即更新状态
     this.intervalId = setInterval(this.updateRoomStatus, 5000); // 设置定时器
   },
   beforeUnmount() {
     clearInterval(this.intervalId); // 清除定时器
+  },
+  props: {
+    roomNumber: String, // 声明props，接收名为message的字符串属性
   },
   data() {
     return {
@@ -74,9 +69,6 @@ export default {
       consumption: null, // 累计消费
       roomTemperature: 22,
       rate: null,  // 空调费率
-      username: null,
-
-      roomDetails: []
     };
   },
 
@@ -93,35 +85,12 @@ export default {
     logout(role) {
       this.$router.push('/');
     },
-
-    async getRoomDetails() {
-      try {
-        // 假设后端提供了一个API来获取房间状态
-        const token = localStorage.getItem('token'); // 从 localStorage 获取 token
-        const checkRoomStatusApi = window.apiBaseUrl + '/room-details';
-
-        const response = await axios.get(checkRoomStatusApi, {
-          headers: {
-            Authorization: `Bearer ${token}` // 添加 token 到请求头
-          }
-        });
-
-        // 更新组件的数据属性
-        this.roomDetails = response.data.roomDetails;
-        console.log(this.roomDetails);
-      } catch (error) {
-        console.error('Error updating room status:', error);
-        alert(error);
-        this.$router.push('/');
-        // 可以添加错误处理逻辑
-      }
-    },
-
     async updateRoomStatus() {
       try {
         // 假设后端提供了一个API来获取房间状态
         const token = localStorage.getItem('token'); // 从 localStorage 获取 token
-        const checkRoomStatusApi = window.apiBaseUrl + '/room-status';
+        console.log(this.roomNumber)
+        const checkRoomStatusApi = window.apiBaseUrl + `/room-status/${this.roomNumber}`;
 
         const response = await axios.get(checkRoomStatusApi, {
           headers: {
@@ -133,6 +102,7 @@ export default {
         this.temperatureMin = response.data.temperatureMin;
         this.acTemperature = response.data.acTemperature;
         this.temperatureMax = response.data.temperatureMax;
+        console.log(this.temperatureMax)
         this.fanSpeed = response.data.fanSpeed;
         this.mode = response.data.mode;
         this.consumption = response.data.consumption;
@@ -149,7 +119,7 @@ export default {
     async sendStatusToBackend() {
       try {
         const token = localStorage.getItem('token');
-        const updateStatusApi = window.apiBaseUrl + '/update-status';
+        const updateStatusApi = window.apiBaseUrl + `/update-status/${this.roomNumber}`;
         const payload = {
           isOn: this.isOn,
           temperature: this.acTemperature,

@@ -93,8 +93,9 @@
         <p>空调状态: {{ room.acIsOn ? "开启" : "关闭" }} </p>
         <p v-if="room.acIsOn">空调设定温度: {{ room.acTemperature }} </p>
         <p v-if="room.acIsOn">风速: {{ room.acSpeed}} </p>
-        <p>累计消费: {{ room.consumption }} </p>
+        <p v-if="room.occupied">累计消费: {{ room.consumption }} </p>
         <!-- 删除房间 -->
+
         <button @click="deleteRoom(room.id)" @click.stop="deleteRoom(room.id)" class="delete-btn">删除</button>
       </div></transition-group>
 
@@ -125,10 +126,10 @@
           <option value="标准间">标准间</option>
         </select>
       </div>
-      <div class="form-group">
-        <label for="roomDuration">入住天数:</label>
-        <input type="number" id="roomDuration" v-model.number="newRoom.roomDuration" min="1" required>
-      </div>
+<!--      <div class="form-group">-->
+<!--        <label for="roomDuration">入住天数:</label>-->
+<!--        <input type="number" id="roomDuration" v-model.number="newRoom.roomDuration" min="1" required>-->
+<!--      </div>-->
       <button type="submit" class="submit-btn">添加房间</button>
     </form>
   </div>

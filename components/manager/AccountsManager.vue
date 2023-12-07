@@ -62,8 +62,13 @@
         </div>
 
         <div class="form-group" v-if="newAccount.role === '客户'">
-          <label for="phoneNumber">房间号:</label>
-          <input type="text" id="phoneNumber" v-model="newAccount.roomNumber" required>
+          <label for="roomNumber">房间号:</label>
+          <input type="text" id="roomNumber" v-model="newAccount.roomNumber" required>
+        </div>
+
+        <div class="form-group" v-if="newAccount.role === '客户'">
+          <label for="days">入住天数:</label>
+          <input type="text" id="days" v-model="newAccount.days" required>
         </div>
 
         <button type="submit" class="submit-btn">添加账号</button>
@@ -134,7 +139,7 @@ export default {
         );
 
         // 清空表单
-        this.newAccount = { username: '', password: '', role: '', idCard: '', phoneNumber: '' };
+        this.newAccount = { username: '', password: '', role: '', idCard: '', phoneNumber: '', days: ''};
         // 可能需要重新加载账号列表
         await this.fetchAccounts();
 
@@ -161,6 +166,7 @@ export default {
               },
             }
         );
+
         // 在此处执行更新帐号列表的操作，例如重新加载帐号数据
         await this.fetchAccounts();
         // alert('删除成功！');

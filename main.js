@@ -5,7 +5,7 @@ import axios from "axios";
 
 
 // 导入你的页面组件
-import RoomEditPage from './components/manager/RoomEditPage.vue';
+import RoomEditPage from './components/manager/RoomDetailPage.vue';
 import CustomerPage from './components/customer/CustomerPage.vue';
 import ManagerPage from './components/manager/ManagerPage.vue';
 import FrontDeskPage from './components/front-desk/FrontDeskPage.vue';

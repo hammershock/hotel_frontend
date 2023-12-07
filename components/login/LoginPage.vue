@@ -57,6 +57,7 @@ export default {
         console.log(response)
         const token = response.data.token;
         localStorage.setItem('token', token); // 保存 token
+        localStorage.setItem('username', this.username);
         // this.$emit('login-success', { role: this.currentRole, account: this.username });
         this.handleLoginSuccess();
 
