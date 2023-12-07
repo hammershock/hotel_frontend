@@ -40,6 +40,9 @@ export default {
   data(){
     return {username: '', password: '', currentRole: '客户'}
   },
+  created() {
+    this.roomID = this.$route.params.roomID;
+  },
   methods:
 {
   switchRole(role){this.currentRole=role;},
@@ -54,9 +57,9 @@ export default {
         console.log(response)
         const token = response.data.token;
         localStorage.setItem('token', token); // 保存 token
-        // localStorage.getItem('token')
-        // 触发登录成功的事件
-        this.$emit('login-success', { role: this.currentRole, account: this.username });
+        // this.$emit('login-success', { role: this.currentRole, account: this.username });
+        this.handleLoginSuccess();
+
       }  catch (error) {
     if (error.response) {
       // 请求已发送，服务器以状态码响应
@@ -75,11 +78,23 @@ export default {
     }
     console.error('Login error:', error);
   }
+    },
+
+  handleLoginSuccess() {
+    // ...设置登录状态
+    if (this.currentRole === '客户') {
+      this.$router.push(`/customer/${this.username}`);
+    } else if (this.currentRole === '管理员') {
+      this.$router.push(`/manager/${this.username}`);
+    } else if (this.currentRole === '前台') {
+      this.$router.push(`/front-desk/${this.username}`);
     }
+  },
 }
 }
 
 </script>
+
 <style scoped>
 
 .canvas {
@@ -179,5 +194,3 @@ button[type="submit"]:hover {
   text-decoration: underline;
 }
 </style>
-<script setup>
-</script>

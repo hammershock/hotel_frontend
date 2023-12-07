@@ -80,7 +80,12 @@
     <div class="room-list">
       <transition-group name="room-fade" tag="div" class="room-list">
 
-      <div v-for="room in filteredRooms" :key="room.id"  @click="openEditModal(room)" :class="['room-card', getRoomTypeClass(room)] " :style="{ backgroundColor: getRoomColor(room) }">
+      <div v-for="room in filteredRooms"
+           :key="room.id"
+           @click="openEditModal(room)"
+           :class="['room-card',
+           getRoomTypeClass(room)] "
+           :style="{ backgroundColor: getRoomColor(room) }">
 
         <h2>房间{{ room.id }}</h2>
         <p>类型: {{ room.type }}</p>
@@ -89,10 +94,8 @@
         <p v-if="room.acIsOn">空调设定温度: {{ room.acTemperature }} </p>
         <p v-if="room.acIsOn">风速: {{ room.acSpeed}} </p>
         <p>累计消费: {{ room.consumption }} </p>
-        <!-- 房间信息 -->
-        <button @click="openEditModal(room)">编辑状态</button>
         <!-- 删除房间 -->
-        <button @click="deleteRoom(room.id)" class="delete-btn">删除</button>
+        <button @click="deleteRoom(room.id)" @click.stop="deleteRoom(room.id)" class="delete-btn">删除</button>
       </div></transition-group>
 
     </div>
@@ -207,8 +210,10 @@ export default {
 
     openEditModal(room) {
       this.selectedRoom = room;
+      this.$router.push({ path: `/edit-room/${room.id}` });
       // 初始化表单数据...
     },
+
     closeEditModal() {
       this.selectedRoom = null;
     },

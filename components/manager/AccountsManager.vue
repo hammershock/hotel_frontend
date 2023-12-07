@@ -15,9 +15,10 @@
         <div class="account-header">
           <strong>{{ account.username }}</strong> ({{ account.role }})
         </div>
-        <div class="account-info">
+        <div class="account-info" v-if="account.role === '客户'">
           <p>身份证号: {{ account.idCard || 'N/A' }}</p>
           <p>手机号: {{ account.phoneNumber || 'N/A' }}</p>
+          <p>房间号: {{ account.roomNumber || 'N/A' }}</p>
         </div>
         <button @click="deleteAccount(account.username, account.role)" class="logout-btn">注销</button>
       </div>
@@ -28,14 +29,17 @@
     <div class="add-account-form">
       <h2>添加新账号</h2>
       <form @submit.prevent="createAccount">
+
         <div class="form-group">
           <label for="username">用户名:</label>
           <input type="text" id="username" v-model="newAccount.username" required>
         </div>
+
         <div class="form-group">
           <label for="password">密码:</label>
           <input type="password" id="password" v-model="newAccount.password" required>
         </div>
+
         <div class="form-group">
           <label for="role">角色:</label>
           <select id="role" v-model="newAccount.role" required>
@@ -45,15 +49,23 @@
             <option value="前台">前台</option>
           </select>
         </div>
+
         <!-- 身份证号和手机号输入 -->
-        <div class="form-group">
+        <div class="form-group" v-if="newAccount.role === '客户'">
           <label for="idCard">身份证号:</label>
-          <input type="text" id="idCard" v-model="newAccount.idCard">
+          <input type="text" id="idCard" v-model="newAccount.idCard" required>
         </div>
-        <div class="form-group">
+
+        <div class="form-group"  v-if="newAccount.role === '客户'">
           <label for="phoneNumber">手机号:</label>
-          <input type="text" id="phoneNumber" v-model="newAccount.phoneNumber">
+          <input type="text" id="phoneNumber" v-model="newAccount.phoneNumber" required>
         </div>
+
+        <div class="form-group" v-if="newAccount.role === '客户'">
+          <label for="phoneNumber">房间号:</label>
+          <input type="text" id="phoneNumber" v-model="newAccount.roomNumber" required>
+        </div>
+
         <button type="submit" class="submit-btn">添加账号</button>
       </form>
     </div>
@@ -75,7 +87,8 @@ export default {
         password: '',
         role: '',
         idCard: '',
-        phoneNumber: ''
+        phoneNumber: '',
+        roomNumber: ''
       }
     };
   },
@@ -127,6 +140,7 @@ export default {
 
       } catch (error) {
         console.error('Error creating account:', error);
+        alert("房间不存在或已被占用")
       }
     },
 
@@ -162,6 +176,7 @@ export default {
       try {
         const response = await axios.get(`${window.apiBaseUrl}/view-accounts`);
         this.accounts = response.data; // 将响应数据赋值给 accounts
+        console.log(response.data);
       } catch (error) {
         console.error('Error fetching accounts:', error);
         alert(error);

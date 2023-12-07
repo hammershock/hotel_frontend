@@ -38,6 +38,7 @@
 
 export default {
   components: {},
+
   data() {
     return {
       selected: 0,
@@ -47,6 +48,9 @@ export default {
         {text: '退房手续', id: 2},
       ],
     };
+  },
+  created() {
+    this.roomID = this.$route.params.roomID;
   },
   methods: {
     turnToPage(id) {
@@ -58,7 +62,7 @@ export default {
       this.selected = 0;
     },
     logout(){
-      this.$emit('logout', '前台')
+      this.$router.push('/');
     }
   }
 };

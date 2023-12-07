@@ -1,11 +1,14 @@
 <template>
   <div class="title">
     <button @click="logout" class="back-button left">退出登录</button>
-  <h2 class="hotel-title">波普特酒店{{this.roomID}}房间</h2>
+    <h2 class="hotel-title">波普特酒店{{ this.roomID }}房间</h2>
   </div>
 
   <div class="air-conditioner-control-panel">
-    <button @click="togglePower();onStatusChange()" :class="{ 'active': isOn }">{{ isOn ? '关闭空调' : '打开空调' }}</button>
+    <button @click="togglePower();onStatusChange()" :class="{ 'active': isOn }">{{
+        isOn ? '关闭空调' : '打开空调'
+      }}
+    </button>
 
     <div v-if="isOn" class="controls">
       <!-- 模式设置 -->
@@ -18,7 +21,8 @@
       <!-- 温度控制 -->
       <div class="temperature-control">
         <label for="temperature">温度: {{ acTemperature }}°C</label>
-        <input type="range" id="temperature" v-model="acTemperature" :min="temperatureMin" :max="temperatureMax" @change="onStatusChange">
+        <input type="range" id="temperature" v-model="acTemperature" :min="temperatureMin" :max="temperatureMax"
+               @change="onStatusChange">
       </div>
 
       <!-- 风速控制 -->
@@ -48,8 +52,8 @@
 import axios from "axios";
 
 export default {
-  props: {
-    roomID: String, // 父组件传递的房间 ID
+  created() {
+    this.roomID = this.$route.params.roomID;
   },
   mounted() {
     this.updateRoomStatus(); // 首次加载时立即更新状态
@@ -68,7 +72,8 @@ export default {
       mode: 'cool', // 制冷模式
       consumption: null, // 累计消费
       roomTemperature: 22,
-      rate: null  // 空调费率
+      rate: null,  // 空调费率
+      roomID: null
     };
   },
 
@@ -83,13 +88,13 @@ export default {
       this.mode = mode;
     },
     logout(role) {
-      this.$emit('logout', '客户')
+      this.$router.push('/');
     },
     async updateRoomStatus() {
       try {
         // 假设后端提供了一个API来获取房间状态
         const token = localStorage.getItem('token'); // 从 localStorage 获取 token
-        const checkRoomStatusApi = window.apiBaseUrl + '/room-status/' + this.roomID;
+        const checkRoomStatusApi = window.apiBaseUrl + '/room-status';
 
         const response = await axios.get(checkRoomStatusApi, {
           headers: {
@@ -117,7 +122,7 @@ export default {
     async sendStatusToBackend() {
       try {
         const token = localStorage.getItem('token');
-        const updateStatusApi = window.apiBaseUrl + '/update-status/' + this.roomID;
+        const updateStatusApi = window.apiBaseUrl + '/update-status';
         const payload = {
           isOn: this.isOn,
           temperature: this.acTemperature,

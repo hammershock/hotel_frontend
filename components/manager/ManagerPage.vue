@@ -66,7 +66,7 @@ export default {
       this.selected = 0;
     },
     logout(){
-      this.$emit('logout', '前台')
+      this.$router.push('/');
     }
   }
 };
