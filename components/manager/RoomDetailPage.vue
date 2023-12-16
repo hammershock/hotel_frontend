@@ -1,7 +1,7 @@
 <template>
   <div class="room-edit-page">
-    <h2>房间{{this.roomNumber}}</h2>
-    <ACPanel :roomNumber="this.roomNumber"></ACPanel>
+    <h2>房间{{ this.roomName }}</h2>
+    <ACPanel :roomName="this.roomName"></ACPanel>
     <button @click="goBack();">返回</button>
     <button @click="checkout();">check-out</button>
   </div>
@@ -9,17 +9,17 @@
 
 
 <script>
-import ACPanel from "./ACPanel.vue";
+import ACPanel from "./ControlPage.vue";
 import axios from "axios";
 export default {
   components:{ACPanel},
   data() {
     return {
-      roomNumber: ''
+      roomName: ''
     };
   },
   created() {
-    this.roomNumber = this.$route.params.id;
+    this.roomName = this.$route.params.roomName;
   },
   methods: {
     updateRoomStatus() {
@@ -34,10 +34,10 @@ export default {
       try {
         const token = localStorage.getItem('token');
         const payload = {
-          "roomNumber": this.roomNumber,
+          "roomName": this.roomName,
         };
         const response = await axios.post(
-            `${window.apiBaseUrl}/check-out`,
+            `${window.apiBaseUrl}/account/delete`,
             payload,
             {
               headers: {

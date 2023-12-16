@@ -10,7 +10,7 @@
     <div class="login-container">
 
       <div class="login-content">
-        <h3>{{ currentRole }} 登录</h3>
+        <h3>{{ getName(currentRole) }} 登录</h3>
         <form @submit.prevent="login" class="form">
           <div class="form-group">
             <label for="username">帐号</label>
@@ -23,9 +23,9 @@
           <button type="submit">登录</button>
         </form>
         <div class="role-switcher">
-          <span @click="switchRole('客户')">客户</span> |
-          <span @click="switchRole('管理员')">管理员</span> |
-          <span @click="switchRole('前台')">前台</span>
+          <span @click="switchRole('customer')">客户</span> |
+          <span @click="switchRole('manager')">管理员</span> |
+          <span @click="switchRole('frontDesk')">前台</span>
         </div>
       </div>
     </div>
@@ -38,7 +38,7 @@ import axios from "axios";
 
 export default {
   data(){
-    return {username: '', password: '', currentRole: '客户'}
+    return {username: '', password: '', currentRole: 'customer'}
   },
   created() {
     this.roomID = this.$route.params.roomID;
@@ -83,14 +83,21 @@ export default {
 
   handleLoginSuccess() {
     // ...设置登录状态
-    if (this.currentRole === '客户') {
+    if (this.currentRole === 'customer') {
       this.$router.push(`/customer/${this.username}`);
-    } else if (this.currentRole === '管理员') {
+    } else if (this.currentRole === 'manager') {
       this.$router.push(`/manager/${this.username}`);
-    } else if (this.currentRole === '前台') {
+    } else if (this.currentRole === 'frontDesk') {
       this.$router.push(`/front-desk/${this.username}`);
     }
   },
+  getName(role) {
+    switch (role){
+      case 'customer': return '客户';
+      case 'manager': return '管理员';
+      case 'frontDesk': return '前台';
+    }
+  }
 }
 }
 

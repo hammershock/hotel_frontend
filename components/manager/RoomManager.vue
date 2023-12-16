@@ -4,31 +4,22 @@
     <div class="controls">
       <input type="text" v-model="searchQuery" placeholder="搜索房间... " class="search-bar">
       <select v-model="selectedDimension" class="dimension-selector">
-        <option value="type">房间类别</option>
         <option value="consumption">累计消费</option>
         <option value="occupied">入住状态</option>
         <option value="duration">入住时间</option>
         <option value="roomTemperature">房间温度</option>
-        <option value="acIsOn">空调状态</option>
+        <option value="queueState">空调状态</option>
         <option value="acTemperature">空调设定温度</option>
-        <option value="acSpeed">风速</option>
+        <option value="fanSpeed">风速</option>
         <option value="acMode">空调模式</option>
       </select>
 
-      <div v-if="selectedDimension === 'type'" class="filter-selector">
-        <select v-model="filterValue" class="filter-selector">
-          <option value="">选择类型</option>
-          <option value="大床房">大床房</option>
-          <option value="标准间">标准间</option>
-        </select>
-      </div>
-
-      <div v-else-if="selectedDimension === 'consumption'" class="range-selector">
+      <div v-if="selectedDimension === 'consumption'" class="range-selector">
         <input type="number" v-model.number="minValue" placeholder="最小金额">
         <input type="number" v-model.number="maxValue" placeholder="最大金额">
       </div>
 
-      <div v-if="selectedDimension === 'occupied'" class="filter-selector">
+      <div v-else-if="selectedDimension === 'occupied'" class="filter-selector">
         <select v-model="filterValue" class="filter-selector">
           <option value="">选择类型</option>
           <option value="true">已入住</option>
@@ -46,11 +37,12 @@
         <input type="number" v-model.number="maxValue" placeholder="最高温度">
       </div>
 
-      <div v-else-if="selectedDimension === 'acIsOn'" class="filter-selector">
+      <div v-else-if="selectedDimension === 'queueState'" class="filter-selector">
         <select v-model="filterValue" class="filter-selector">
           <option value="">选择状态</option>
-          <option value="1">开启</option>
-          <option value="0">关闭</option>
+          <option value="PENDING">等待</option>
+          <option value="RUNNING">运行中</option>
+          <option value="IDLE">空闲</option>
         </select>
       </div>
 
@@ -59,20 +51,20 @@
         <input type="number" v-model.number="maxValue" placeholder="最高温度" max="40">
       </div>
 
-      <div v-else-if="selectedDimension === 'acSpeed'" class="filter-selector">
+      <div v-else-if="selectedDimension === 'fanSpeed'" class="filter-selector">
         <select v-model="filterValue" class="filter-selector">
           <option value="">选择风速</option>
-          <option value="low">低</option>
-          <option value="medium">中</option>
-          <option value="high">高</option>
+          <option value="LOW">低</option>
+          <option value="MEDIUM">中</option>
+          <option value="HIGH">高</option>
         </select>
       </div>
 
-      <div v-else-if="selectedDimension === 'acMode'" class="filter-selector">
+      <div v-else-if="selectedDimension === 'queueState'" class="filter-selector">
         <select v-model="filterValue" class="filter-selector">
           <option value="">选择模式</option>
-          <option value="cool">制冷</option>
-          <option value="heat">制热</option>
+          <option value="COOL">制冷</option>
+          <option value="HEAT">制热</option>
         </select>
       </div>
     </div>
@@ -83,17 +75,21 @@
       <div v-for="room in filteredRooms"
            :key="room.id"
            @click="openEditModal(room)"
-           :class="['room-card',
-           getRoomTypeClass(room)] "
+           :class="['room-card'] "
            :style="{ backgroundColor: getRoomColor(room) }">
 
-        <h2>房间{{ room.id }}</h2>
-        <p>类型: {{ room.type }}</p>
+        <h2>房间{{ room.roomName }}</h2>
+        <p>编号: {{ room.roomID }}</p>
+        <p>类型: {{ room.roomDescription }}</p>
         <p>入住状态: {{ room.occupied ? "已入住": "空闲"}} </p>
-        <p>空调状态: {{ room.acIsOn ? "开启" : "关闭" }} </p>
-        <p v-if="room.acIsOn">空调设定温度: {{ room.acTemperature }} </p>
-        <p v-if="room.acIsOn">风速: {{ room.acSpeed}} </p>
-        <p v-if="room.occupied">累计消费: {{ room.consumption }} </p>
+        <p>空调状态: {{ room.queueState }} </p>
+        <p >剩余时间: {{ room.timeLeft }} </p>
+        <p >空调设定温度: {{ room.acTemperature }} </p>
+        <p >房间温度: {{ room.roomTemperature }} </p>
+        <p >房间初始温度: {{ room.initialTemperature }} </p>
+        <p>风速: {{ room.fanSpeed}} </p>
+        <p>累计消费: {{ room.consumption }} </p>
+        <p>房间单价: {{ room.unitPrice }} </p>
         <!-- 删除房间 -->
 
         <button @click="deleteRoom(room.id)" @click.stop="deleteRoom(room.id)" class="delete-btn">删除</button>
@@ -115,21 +111,17 @@
     <h2>创建新房间</h2>
     <form @submit.prevent="createRoom">
       <div class="form-group">
-        <label for="roomNumber">房间号:</label>
-        <input type="number" id="roomNumber" v-model.number="newRoom.roomNumber" min="1" required>
+        <label for="roomName">房间:</label>
+        <input id="roomName" v-model="newRoom.roomName" min="1" required>
       </div>
       <div class="form-group">
-        <label for="roomType">房间类型:</label>
-        <select id="roomType" v-model="newRoom.roomType" required>
-          <option value="">选择类型</option>
-          <option value="大床房">大床房</option>
-          <option value="标准间">标准间</option>
-        </select>
+        <label for="roomDescription">房间描述:</label>
+        <input id="roomDescription" v-model="newRoom.roomDescription" required>
       </div>
-<!--      <div class="form-group">-->
-<!--        <label for="roomDuration">入住天数:</label>-->
-<!--        <input type="number" id="roomDuration" v-model.number="newRoom.roomDuration" min="1" required>-->
-<!--      </div>-->
+      <div class="form-group">
+        <label for="unitPrice">房间单价:</label>
+        <input type="number" id="unitPrice" v-model.number="newRoom.unitPrice" min="1" required>
+      </div>
       <button type="submit" class="submit-btn">添加房间</button>
     </form>
   </div>
@@ -150,12 +142,12 @@ export default {
       searchQuery: '',
       selectedType: '',
       newRoom: {
-        roomNumber: null,
-        roomType: '',
-        roomDuration: null
+        roomName: null,
+        roomDescription: '',
+        unitPrice: null
       },
 
-      selectedDimension: 'type',
+      selectedDimension: 'consumption',
       filterValue: '',
       minValue: null,
       maxValue: null,
@@ -188,20 +180,13 @@ export default {
 
   mounted() {
     this.fetchRooms();
+    this.intervalId = setInterval(this.fetchRooms, 1000);
   },
 
+  beforeUnmount() {
+    clearInterval(this.intervalId); // 清除定时器
+  },
   methods: {
-    getRoomTypeClass(account) {
-      switch (account.type) {
-        case "大床房":
-          return "big";
-        case "标准间":
-          return "normal";
-        default:
-          return "";
-      }
-    },
-
     updateFilterOptions() {
       // 重置筛选选项
       this.filterValue = '';
@@ -211,7 +196,7 @@ export default {
 
     openEditModal(room) {
       this.selectedRoom = room;
-      this.$router.push({ path: `/edit-room/${room.id}` });
+      this.$router.push({ path: `/edit-room/${room.roomName}` });
       // 初始化表单数据...
     },
 
@@ -226,8 +211,8 @@ export default {
 
     async fetchRooms() {
       try {
-        const response = await axios.get(`${window.apiBaseUrl}/view-rooms`);
-        this.rooms = response.data; // 将响应数据赋值给 accounts
+        const response = await axios.get(`${window.apiBaseUrl}/rooms`);
+        this.rooms = response.data['roomsInfo'];
       } catch (error) {
         console.error('Error fetching accounts:', error);
         alert(error);
@@ -262,7 +247,7 @@ export default {
     async createRoom() {
       try {
         const token = localStorage.getItem('token');
-        await axios.post(`${window.apiBaseUrl}/create-room`, this.newRoom, {
+        await axios.post(`${window.apiBaseUrl}/room/create`, this.newRoom, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -289,14 +274,15 @@ export default {
         true: '#dddda8', // 浅黄色
         false: '#9b9191' // 浅灰色
       },
-      acIsOn: {
-        1: '#5f7a64',
-        0: '#d3d3d3'
+      queueState: {
+        'RUNNING': '#456a4c',
+        'IDLE': '#d3d3d3',
+        'PENDING': '#8c8c29'
       },
-      acSpeed: {
-        'low': '#7f929a',
-        'medium': '#7f9d7f',
-        'high': '#a392a3' // 浅紫色
+      fanSpeed: {
+        'LOW': '#7f929a',
+        'MEDIUM': '#7f9d7f',
+        'HIGH': '#a392a3' // 浅紫色
       },
       acMode: {
         'cool': '#688a96', // 天蓝色
@@ -314,7 +300,7 @@ export default {
       return this.interpolateColor(minColor, maxColor, factor);
 
     }
-    if (this.selectedDimension === 'acIsOn' && room[this.selectedDimension] === 1 && !room.occupied)return '#ac7e35'
+    if (this.selectedDimension === 'queueState' && room[this.selectedDimension] === 1 && !room.occupied)return '#ac7e35'
     return colorPalette[this.selectedDimension][room[this.selectedDimension]];
   },
 
@@ -344,16 +330,6 @@ export default {
   }
 };
 </script>
-
-
-<!--.big {-->
-<!--  background-color: #e6f7ff;-->
-<!--}-->
-
-<!--.normal {-->
-<!--  background-color: #fffbe6;-->
-<!--}-->
-
 
 <style>
 .room-management {

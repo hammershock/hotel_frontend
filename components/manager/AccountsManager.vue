@@ -18,7 +18,7 @@
         <div class="account-info" v-if="account.role === '客户'">
           <p>身份证号: {{ account.idCard || 'N/A' }}</p>
           <p>手机号: {{ account.phoneNumber || 'N/A' }}</p>
-          <p>房间号: {{ account.roomNumber || 'N/A' }}</p>
+          <p>房间号: {{ account.roomName || 'N/A' }}</p>
         </div>
         <button @click="deleteAccount(account.username, account.role)" class="logout-btn">注销</button>
       </div>
@@ -44,29 +44,29 @@
           <label for="role">角色:</label>
           <select id="role" v-model="newAccount.role" required>
             <option value="">选择角色</option>
-            <option value="客户">客户</option>
-            <option value="管理员">管理员</option>
-            <option value="前台">前台</option>
+            <option value="customer">客户</option>
+            <option value="manager">管理员</option>
+            <option value="frontDesk">前台</option>
           </select>
         </div>
 
         <!-- 身份证号和手机号输入 -->
-        <div class="form-group" v-if="newAccount.role === '客户'">
+        <div class="form-group" v-if="newAccount.role === 'customer'">
           <label for="idCard">身份证号:</label>
           <input type="text" id="idCard" v-model="newAccount.idCard" required>
         </div>
 
-        <div class="form-group"  v-if="newAccount.role === '客户'">
+        <div class="form-group"  v-if="newAccount.role === 'customer'">
           <label for="phoneNumber">手机号:</label>
           <input type="text" id="phoneNumber" v-model="newAccount.phoneNumber" required>
         </div>
 
-        <div class="form-group" v-if="newAccount.role === '客户'">
+        <div class="form-group" v-if="newAccount.role === 'customer'">
           <label for="roomNumber">房间号:</label>
-          <input type="text" id="roomNumber" v-model="newAccount.roomNumber" required>
+          <input type="text" id="roomNumber" v-model="newAccount.roomName" required>
         </div>
 
-        <div class="form-group" v-if="newAccount.role === '客户'">
+        <div class="form-group" v-if="newAccount.role === 'customer'">
           <label for="days">入住天数:</label>
           <input type="text" id="days" v-model="newAccount.days" required>
         </div>
@@ -93,7 +93,7 @@ export default {
         role: '',
         idCard: '',
         phoneNumber: '',
-        roomNumber: ''
+        roomName: ''
       }
     };
   },
@@ -114,11 +114,11 @@ export default {
   methods: {
     getAccountClass(account) {
       switch (account.role) {
-        case "客户":
+        case "customer":
           return "customer";
-        case "管理员":
+        case "manager":
           return "admin";
-        case "前台":
+        case "frontDesk":
           return "front-desk";
         default:
           return "";
@@ -129,7 +129,7 @@ export default {
         // 发送请求到后端创建账号
         const token = localStorage.getItem('token');
         const response = await axios.post(
-            `${window.apiBaseUrl}/create-account`,
+            `${window.apiBaseUrl}/account/create`,
             this.newAccount,
             {
               headers: {
@@ -154,11 +154,10 @@ export default {
         const token = localStorage.getItem('token');
         const payload = {
           "username": username,
-          "role": role,
         };
 
         const response = await axios.post(
-            `${window.apiBaseUrl}/delete-account`,
+            `${window.apiBaseUrl}/account/delete`,
             payload,
             {
               headers: {
@@ -180,8 +179,8 @@ export default {
 
     async fetchAccounts() {
       try {
-        const response = await axios.get(`${window.apiBaseUrl}/view-accounts`);
-        this.accounts = response.data; // 将响应数据赋值给 accounts
+        const response = await axios.get(`${window.apiBaseUrl}/accounts`);
+        this.accounts = response.data.accounts; // 将响应数据赋值给 accounts
         console.log(response.data);
       } catch (error) {
         console.error('Error fetching accounts:', error);

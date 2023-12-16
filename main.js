@@ -15,7 +15,7 @@ import LoginPage from './components/login/LoginPage.vue';
 // 定义路由
 const routes = [
   { path: '/', component: LoginPage },
-  { path: '/edit-room/:id', component: RoomEditPage },
+  { path: '/edit-room/:roomName', component: RoomEditPage },
   { path: '/customer/:roomID', component: CustomerPage },
   { path: '/manager/:roomID', component: ManagerPage },
   { path: '/front-desk/:roomID', component: FrontDeskPage },
