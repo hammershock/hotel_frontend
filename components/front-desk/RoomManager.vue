@@ -65,7 +65,6 @@
 
       <div v-for="room in filteredRooms"
            :key="room.id"
-           @click="openEditModal(room)"
            :class="['room-card'] "
            :style="{ backgroundColor: getRoomColor(room) }">
 
@@ -83,39 +82,10 @@
         <p>房间单价: {{ room.unitPrice }} </p>
         <!-- 删除房间 -->
 
-        <button v-if="!room.occupied" @click="deleteRoom(room.roomName)" @click.stop="deleteRoom(room.roomName)" class="delete-btn">删除房间</button>
+        <button v-if="room.occupied" @click="deleteRoom(room.roomName)" @click.stop="deleteRoom(room.roomName)" class="delete-btn">办理退房</button>
       </div></transition-group>
 
     </div>
-
-    <!-- 状态编辑模态框 -->
-    <div v-if="selectedRoom" class="edit-modal">
-      <!-- 编辑表单 -->
-      <form @submit.prevent="updateRoomStatus">
-        <!-- 状态编辑字段 -->
-        <button type="submit">保存更改</button>
-      </form>
-      <button @click="closeEditModal">关闭</button>
-    </div>
-
-    <div class="room-creation">
-    <h2>创建新房间</h2>
-    <form @submit.prevent="createRoom">
-      <div class="form-group">
-        <label for="roomName">房间:</label>
-        <input id="roomName" v-model="newRoom.roomName" min="1" required>
-      </div>
-      <div class="form-group">
-        <label for="roomDescription">房间描述:</label>
-        <input id="roomDescription" v-model="newRoom.roomDescription" required>
-      </div>
-      <div class="form-group">
-        <label for="unitPrice">房间单价:</label>
-        <input type="number" id="unitPrice" v-model.number="newRoom.unitPrice" min="1" required>
-      </div>
-      <button type="submit" class="submit-btn">添加房间</button>
-    </form>
-  </div>
   </div>
 </template>
 
@@ -191,17 +161,6 @@ export default {
       this.maxValue = null;
     },
 
-    openEditModal(room) {
-      this.selectedRoom = room;
-      this.$router.push({ path: `/edit-room/${room.roomName}` });
-      localStorage.setItem('occupied', room.occupied)
-      // 初始化表单数据...
-    },
-
-    closeEditModal() {
-      this.selectedRoom = null;
-    },
-
     async updateRoomStatus() {
       // 发送更新请求到后端 API
       // 关闭模态框并刷新房间列表...
@@ -224,15 +183,13 @@ async deleteRoom(roomName) {
       "roomName": roomName,
     };
 
-    await axios.post(`${window.apiBaseUrl}/room/delete`, payload, {
+    await axios.post(`${window.apiBaseUrl}/account/delete`, payload, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-
     await this.fetchRooms();
   } catch (error) {
-    alert('房间已经入住，请先办理退房！')
     console.error('Error during room deletion:', error.message);
   }
 },

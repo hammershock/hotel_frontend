@@ -2,20 +2,19 @@
   <div class="hotel-reception">
     <h2 class="hotel-title">波普特酒店管理员系统</h2>
     <!-- 返回按钮 -->
-    <button v-if="this.inPage === false" @click="logout" class="back-button left">
+    <button @click="logout" class="back-button left">
     <img src="/logout.png" alt="Logout" width="16" height="16"> 退出登录
     </button>
-    <button v-if="this.inPage === true" @click="goToMainMenu" class="back-button right">
-      <img src="/home.png" alt="Home" width="16" height="16"> 返回主菜单
-    </button>
+<!--    <button v-if="this.inPage === true" @click="goToMainMenu" class="back-button right">-->
+<!--      <img src="/home.png" alt="Home" width="16" height="16"> 返回主菜单-->
+<!--    </button>-->
 
     <!-- 主菜单 -->
     <div class="main-menu">
       <button
           v-for="menu in mainMenuItems"
           :key="menu.text"
-          :class="['menu-button', { 'disabled': selected !== menu.id && this.inPage === true, 'active': selected === menu.id || this.inPage === false, }]"
-          :disabled="this.inPage === true"
+          :class="['menu-button', { 'active': selected === menu.id}]"
           @click="turnToPage(menu.id)"
       >
         {{ menu.text }}
@@ -40,11 +39,20 @@
 
 import Accounts from "./AccountsManager.vue";
 import Rooms from "./RoomManager.vue"
-import Control from "./ACControl.vue"
+import Control from "./SettingsPage.vue"
 
 
 export default {
   components: {Accounts, Rooms, Control},
+
+  created() {
+  const savedMenu = sessionStorage.getItem('selectedMenu');
+  if (savedMenu) {
+    this.selected = parseInt(savedMenu, 10);
+  }
+},
+
+
   data() {
     return {
       selected: 0,
@@ -52,7 +60,7 @@ export default {
       mainMenuItems: [
         {text: '帐号管理', id: 1},
         {text: '房间管理', id: 2},
-        {text: '费率设置', id: 3},
+        {text: '空调设置', id: 3},
       ],
     };
   },
@@ -60,6 +68,7 @@ export default {
     turnToPage(id) {
       this.inPage = true;
       this.selected = id;
+      sessionStorage.setItem('selectedMenu', id);
     },
     goToMainMenu() {
       this.inPage = false;
@@ -100,7 +109,7 @@ export default {
   background-color: #0056b3;
 }
 
-.menu-button.disabled {
+.menu-button:not(.active) {
   background-color: #ccc;
   cursor: not-allowed;
 }

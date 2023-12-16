@@ -2,12 +2,6 @@
   <div class="account-management">
     <div class="controls">
       <input type="text" v-model="searchQuery" placeholder="搜索账号..." class="search-bar">
-      <select v-model="selectedRole" class="role-filter">
-        <option value="">所有角色</option>
-        <option value="customer">客户</option>
-        <option value="manager">管理员</option>
-        <option value="frontDesk">前台</option>
-      </select>
     </div>
     <div class="account-list">
       <transition-group name="account-fade" tag="div" class="account-list">
@@ -29,7 +23,7 @@
 
     <!-- 分页控件或其他功能 -->
     <div class="add-account-form">
-      <h2>添加新账号/办理入住</h2>
+      <h2>办理入住</h2>
       <form @submit.prevent="createAccount">
 
         <div class="form-group">
@@ -42,35 +36,20 @@
           <input type="password" id="password" v-model="newAccount.password" required>
         </div>
 
-        <div class="form-group">
-          <label for="role">角色:</label>
-          <select id="role" v-model="newAccount.role" required>
-            <option value="">选择角色</option>
-            <option value="customer">客户</option>
-            <option value="manager">管理员</option>
-            <option value="frontDesk">前台</option>
-          </select>
-        </div>
-
         <!-- 身份证号和手机号输入 -->
-        <div class="form-group" v-if="newAccount.role === 'customer'">
+        <div class="form-group">
           <label for="idCard">身份证号:</label>
           <input type="text" id="idCard" v-model="newAccount.idCard" required>
         </div>
 
-        <div class="form-group"  v-if="newAccount.role === 'customer'">
+        <div class="form-group">
           <label for="phoneNumber">手机号:</label>
           <input type="text" id="phoneNumber" v-model="newAccount.phoneNumber" required>
         </div>
 
-        <div class="form-group" v-if="newAccount.role === 'customer'">
+        <div class="form-group">
           <label for="roomNumber">房间号:</label>
           <input type="text" id="roomNumber" v-model="newAccount.roomName" required>
-        </div>
-
-        <div class="form-group" v-if="newAccount.role === 'customer'">
-          <label for="days">入住天数:</label>
-          <input type="text" id="days" v-model="newAccount.days" required>
         </div>
 
         <button type="submit" class="submit-btn">{{newAccount.role === 'customer' ? "办理入住": "添加新帐号"}}</button>
@@ -88,12 +67,11 @@ export default {
     return {
       accounts: [],
       searchQuery: '',
-      selectedRole: '',
+      selectedRole: 'customer',
 
       newAccount: {
         username: '',
         password: '',
-        role: '',
         idCard: '',
         phoneNumber: '',
         roomName: '',
