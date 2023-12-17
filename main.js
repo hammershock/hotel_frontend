@@ -31,7 +31,10 @@ const router = createRouter({
 
 const app = createApp(App);
 app.use(router);
-window.apiBaseUrl = 'http://localhost:5000';
+// window.apiBaseUrl = 'http://localhost:5000';
+window.apiBaseUrl = 'http://10.29.220.202:5000';
+
+
 app.mount('#app');
 
 axios.interceptors.request.use(function (config) {
