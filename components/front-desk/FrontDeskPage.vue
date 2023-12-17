@@ -36,11 +36,10 @@
 
 import Accounts from "./AccountsManager.vue";
 import Rooms from "./RoomManager.vue"
-import Control from "./SettingsPage.vue"
 
 
 export default {
-  components: {Accounts, Rooms, Control},
+  components: {Accounts, Rooms},
 
   created() {
   const savedMenu = sessionStorage.getItem('selectedMenu');

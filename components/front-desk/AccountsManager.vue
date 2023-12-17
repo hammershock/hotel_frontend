@@ -15,8 +15,11 @@
           <p>房间号: {{ account.roomName || 'N/A' }}</p>
           <p>入住时间: {{ account.createTime || 'N/A' }}</p>
         </div>
-        <button v-if="!(account.role === 'customer')" @click="deleteAccount(account.username, account.role, account.roomName)" class="logout-btn">注销</button>
+
+        <button @click="downloadDetails(account.roomName)">下载详单</button>
          <button v-if="account.role === 'customer'" @click="checkout(account.username, account.role, account.roomName)" class="logout-btn">退房</button>
+
+         <button @click="downloadSummary(account.roomData)">下载账单</button>
       </div>
       </transition-group>
     </div>
@@ -68,6 +71,7 @@ export default {
       accounts: [],
       searchQuery: '',
       selectedRole: 'customer',
+      details: [],
 
       newAccount: {
         username: '',
@@ -198,6 +202,81 @@ export default {
         alert(error);
       }
     },
+
+    async fetchRoomDetails(roomName) {
+      try {
+        const token = localStorage.getItem('token'); // 从 localStorage 获取 token
+        const checkRoomStatusApi = window.apiBaseUrl + `/room/${roomName}/details`;
+
+        const response = await axios.get(checkRoomStatusApi, {
+          headers: {
+            Authorization: `Bearer ${token}` // 添加 token 到请求头
+          }
+        });
+
+        this.details = response.data['roomInfo'].roomDetails;
+
+      } catch (error) {
+        console.error('Error updating room status:', error);
+        alert(error);
+        this.$router.push('/');
+      }
+    },
+
+    async downloadSummary(roomData) {
+      let csvContent = "data:text/csv;charset=utf-8,";
+
+      // 添加标题行
+      const headers = 'Room name,Room id,Room description,Session id,CheckIn time,current time,consumption,Unit price,Total\n';
+      csvContent += headers;
+      // 添加数据行
+      const row = [roomData.roomName, roomData.roomID, roomData.roomDescription,
+        roomData.customerSessionID, roomData.checkInTime, roomData.currentTime, roomData.consumption,
+      roomData.unitPrice, roomData.days * roomData.unitPrice + roomData.consumption].join(',');
+      csvContent += row + '\n';
+      // 创建下载链接并触发下载
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "room_summary.csv");
+      document.body.appendChild(link); // 必须追加到 body
+      link.click();
+      document.body.removeChild(link); // 清理
+    },
+
+    async downloadDetails(roomName) {
+      await this.fetchRoomDetails(roomName);
+      let csvContent = "data:text/csv;charset=utf-8,";
+
+      // 添加标题行
+      const headers = 'Record ID,Duration,Request Time,Serve Start Time, Serve End Time,Fan speed,AC Mode,Rate,Consumption,Accumulated Consumption\n';
+      csvContent += headers;
+      // 添加数据行
+      this.details.forEach(detail => {
+        const row = [
+          detail.id,
+          detail.duration,
+          detail.requestTime,
+          detail.serveStartTime,
+          detail.serveEndTime,
+            detail.fanSpeed,
+            detail.acMode,
+            detail.rate,
+            detail.consumption,
+            detail.accumulatedConsumption
+        ].join(',');
+        csvContent += row + '\n';
+      });
+
+      // 创建下载链接并触发下载
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "room_details.csv");
+      document.body.appendChild(link); // 必须追加到 body
+      link.click();
+      document.body.removeChild(link); // 清理
+    }
   }
 };
 </script>

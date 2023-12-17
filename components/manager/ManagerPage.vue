@@ -32,7 +32,6 @@
 
   </div>
 
-
 </template>
 
 <script>
@@ -84,6 +83,7 @@ export default {
 <style scoped>
 .hotel-reception {
   text-align: center;
+  background: rgba(255, 255, 255, 0);
 }
 
 .main-menu {

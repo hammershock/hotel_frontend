@@ -325,6 +325,21 @@ async deleteRoom(roomName) {
 </script>
 
 <style>
+.page-container {
+  background-image: url('/room.jpeg'); /* 设置背景图片的URL */
+  background-size: cover; /* 使背景图片充满容器 */
+  background-repeat: no-repeat; /* 防止背景图片重复 */
+  background-attachment: fixed; /* 固定背景图片，使其不随内容滚动 */
+  position: absolute; /* 设置定位为绝对定位 */
+  top: 0; /* 距离顶部距离为0 */
+  right: 0; /* 距离右侧距离为0 */
+  bottom: 0; /* 距离底部距离为0 */
+  left: 0; /* 距离左侧距离为0 */
+  width: 100%; /* 宽度为100% */
+  height: 100%; /* 高度为100% */
+  /* 其他样式 */
+}
+
 .room-management {
   padding: 20px;
 }

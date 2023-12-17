@@ -1,0 +1,9 @@
+hotel_frontend@0.0.0 /home/hammer/Documents/PycharmProjects/hotel_frontend
+├── @vitejs/plugin-vue@4.5.1
+├── axios@1.6.2
+├── sass-loader@13.3.2
+├── sass@1.69.5
+├── vite@5.0.6
+├── vue-router@4.2.5
+└── vue@3.3.10
+
